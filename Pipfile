@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "<=3.1"
+djangorestframework = "<=3.12"
+django-cors-headers = "*"
+drf-yasg2 = "*"
+environs = "*"
+psycopg2-binary = "*"
+
+
+[dev-packages]
+tblib = "*"
+coverage = "*"
+flake8 = "*"
+autopep8 = "*"
+
+[requires]
+python_version = "3.9"
