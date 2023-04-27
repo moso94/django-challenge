@@ -11,19 +11,22 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+from environs import Env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
+env = Env()
+env.read_env(recurse=False, path=Path.joinpath(BASE_DIR, '.env'), override=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7%bw4o3go#f5iumfd#)85@xlx6$nwe9ef!gsb3ki^ab(ag819!'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG")
 
 ALLOWED_HOSTS = []
 
@@ -37,6 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders',
+
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +61,7 @@ ROOT_URLCONF = 'djangoChallenge.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [Path.joinpath(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,16 +76,40 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'djangoChallenge.wsgi.application'
 
+# DRF
+_DEFAULT_TIME_RELATED_FORMAT = '%s'
+REST_FRAMEWORK = dict(
+    # DEFAULT_PERMISSION_CLASSES=('rest_framework.permissions.IsAuthenticated',),
+    # DEFAULT_AUTHENTICATION_CLASSES=('utils.settings.JWTAuthentication',),
+    UNAUTHENTICATED_USER=None,
+    DEFAULT_RENDERER_CLASSES=('rest_framework.renderers.JSONRenderer',
+                              'rest_framework.renderers.TemplateHTMLRenderer',),
+    # DATE_FORMAT=_DEFAULT_TIME_RELATED_FORMAT,
+    # DATE_INPUT_FORMATS=[_DEFAULT_TIME_RELATED_FORMAT],
+    # DATETIME_FORMAT=_DEFAULT_TIME_RELATED_FORMAT,
+    # DATETIME_INPUT_FORMATS=[_DEFAULT_TIME_RELATED_FORMAT],
+    # TIME_FORMAT=_DEFAULT_TIME_RELATED_FORMAT,
+    # TIME_INPUT_FORMATS=[_DEFAULT_TIME_RELATED_FORMAT],
+)
+
+DRF_ENABLED = env.bool('DRF_ENABLED', False)
+if DRF_ENABLED:
+    INSTALLED_APPS.append('drf_yasg2')  # noqa
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+with env.prefixed('DB_') as e:
+    DATABASES = {
+        'default': dict(
+            ENGINE='django.db.backends.postgresql_psycopg2',
+            NAME=e('NAME'),
+            USER=e('USER'),
+            PASSWORD=e('PASS'),
+            HOST=e('HOST'),
+            PORT=e('PORT')
+        )
     }
-}
 
 
 # Password validation

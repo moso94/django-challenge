@@ -1,0 +1,23 @@
+<html>
+
+<body>
+    <h1>Reservations</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Room Name</th>
+            <th>Start time</th>
+            <th>End time</th>
+        </tr>
+        {% for res in reservations %}
+        <tr>
+            <td>{{ res.name }}</td>
+            <td>{{ res.room.name }}</td>
+            <td>{{ res.start_at }}</td>
+            <td>{{ res.end_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>
